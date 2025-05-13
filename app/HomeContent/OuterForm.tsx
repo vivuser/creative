@@ -85,8 +85,8 @@ const OuterForm = () => {
       };
 
       return (
-        <div className="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md space-y-4">
-          <h2 className="text-2xl font-bold text-gray-800">lorem ipsum</h2>
+        <div className="p-6 max-w-md bg-white rounded-xl shadow-md space-y-4">
+          <h2 className="text-2xl font-bold text-gray-800">select</h2>
           
           <div className="space-y-3">
             {actresses.map(actress => (

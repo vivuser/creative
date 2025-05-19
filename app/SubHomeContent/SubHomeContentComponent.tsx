@@ -5,13 +5,13 @@ import AnswerDetail from "./answerDetail";
 import TopicDetail from "./TopicDetail";
 
 interface TopicItem {
-  nui: {
+  questionDetails: {
     [key: string]: {
-      detail: string;
-      uv: number;
-      dv: number;
-      hc: number;
-      c: string[];
+      question: string; // Replacing 'detail' with 'question'
+      upvotes: number; // Replacing 'uv' with 'upvotes'
+      downvotes: number; // Replacing 'dv' with 'downvotes'
+      helpfulCount: number; // Replacing 'hc' with 'helpfulCount'
+      comments: string[]; // Replacing 'c' with 'comments'
     };
   };
 }
@@ -35,6 +35,8 @@ const SubHomeContent = ({ all }: { all: AllTopics }) => {
 
   const dataToShow = activeTopic ? { [activeTopic]: all[activeTopic] ?? [] } : null;
 
+  console.log(dataToShow, 'dis....')
+
   return (
     <div className="flex flex-row gap-6 h-full m-8">
       {/* Left column */}
@@ -54,8 +56,6 @@ const SubHomeContent = ({ all }: { all: AllTopics }) => {
           </p>
         ))}
       </div>
-
-
 
       {/* Middle column */}
       <div className="w-1/4 bg-white p-4 rounded border">

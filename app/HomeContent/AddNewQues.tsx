@@ -35,8 +35,13 @@ const AddNewQues = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const results = await checkSimilarQuestions(question);
-      console.log('Similar questions:', results);
+      const { similarQuestions } = await checkSimilarQuestions(question);
+
+      if (similarQuestions && similarQuestions.length > 0) {
+        setSimilarQuestions(similarQuestions);
+        setShowSimilarQuestions(true);
+      }
+
     } catch (error) {
       // Show user-friendly error
       alert('Failed to check questions. Please try again.');
@@ -55,12 +60,35 @@ const AddNewQues = () => {
     
     console.log('Submitting question after similar check:', question);
     // Add your submission logic here (API call, etc.)
-    
+
+    try {
+      const response = await fetch('/api/questions', {
+        method: 'POST',
+        headers: { 'Content-Type' : 'application/json' },
+        body: JSON.stringify({ question }),
+      });
+
+      if (!response.ok) throw new Error ('Failed to save')
+
+      setQuestion('');
+
+      router.refresh();
+    } catch (error) {
+      alert('Failed to save. Please try again')
+    }
+
+
     setTimeout(() => {
       setQuestion('');
       setIsSubmitting(false);
     }, 1000);
   };
+
+  console.log(similarQuestions, 'similar 123...')
+
+  const handleQuesRedirect = () => {
+    router.push('/singleQuestion')
+  }
 
   return (
     <div className="max-w-2xl mx-auto p-4">
@@ -98,13 +126,18 @@ const AddNewQues = () => {
         {question.length}/250 characters
       </div>
 
+
       {/* Similar questions modal */}
       {showSimilarQuestions && (
         <div className="mt-4 p-4 bg-gray-50 rounded-lg">
           <h3 className="font-medium text-gray-800">Similar questions found:</h3>
           <ul className="mt-2 space-y-2">
             {similarQuestions.map((q, i) => (
-              <li key={i} className="text-gray-600">• {q}</li>
+              <li key={i} className="text-gray-600">• {q}
+            <button className='ml-4 bg-amber-100 rounded-sm px-2 py-1' onClick={handleQuesRedirect}>
+            Visit
+            </button>
+              </li>
             ))}
           </ul>
           <div className="mt-4 flex gap-2">

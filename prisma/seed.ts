@@ -2,6 +2,7 @@ import { PrismaClient } from '../app/generated/prisma';
 const prisma = new PrismaClient();
 
 async function main() {
+  // Create basic topics without categories
   await prisma.topic.createMany({
     data: [
       { name: 'Health' },
@@ -11,31 +12,39 @@ async function main() {
       { name: 'Mental Health' },
     ],
   });
-
+  
   const topics = await prisma.topic.findMany();
-
-  // Generate many nuiValues per topic
+  
+  // Generate questions for each topic
   for (const topic of topics) {
-    const nuiValuesData = [];
-    for (let i = 1; i <= 50; i++) {
-      nuiValuesData.push({
-        key: `Value${i}`,
-        detail: `${topic.name} detail description for Value detail description for Valuedetail
-        detail description for Value${i}.`,
-        uv: Math.floor(Math.random() * 5),
-        dv: Math.floor(Math.random() * 5),
-        hc: Math.floor(Math.random() * 2), // 0 or 1
-        c: ['Confidence ' + (Math.floor(Math.random() * 3) + 1)], // 1 to 3 confidence
+    const questionsData = [];
+    
+    for (let i = 1; i <= 10; i++) {
+      // Generate a small set of comments
+      const comments = [
+        `Useful information about ${topic.name}`,
+        `I learned something new about ${topic.name}`
+      ];
+      
+      questionsData.push({
+        key: `Question${i}`,
+        question: `What's important to know about ${topic.name}?`,
+        detail: `Details about ${topic.name} question ${i}`,
+        uv: Math.floor(Math.random() * 100), // upvotes
+        dv: Math.floor(Math.random() * 50),  // downvotes
+        hc: Math.floor(Math.random() * 10),  // helpful count (0-9)
+        c: comments, // Fixed sample comments
         topicId: topic.id,
       });
     }
-    // Insert nuiValues in bulk
+    
+    // Insert questions in bulk
     await prisma.nuiValue.createMany({
-      data: nuiValuesData,
+      data: questionsData,
     });
   }
-
-  console.log('Seeded multiple topics with 50 nuiValues each!');
+  
+  console.log('Seeded topics with questions successfully!');
 }
 
 main()

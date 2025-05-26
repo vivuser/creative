@@ -6,17 +6,26 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
 
     try{
-        const { question } = await req.json();
+        const { question, userId } = await req.json();
 
         const newQuestion = await prisma.question.create({
             data : {
                 title : question,
                 content: question,
 
+            },
+            select: {
+                id: true,
+                title: true,
             }
         });
 
-        return NextResponse.json(newQuestion);
+        return NextResponse.json({
+            success: true,
+            question: newQuestion,
+            redirectTo: `/questions/${newQuestion.id}` // Include redirect path
+        });
+
     } catch (error) {
 
         return NextResponse.json(

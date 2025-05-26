@@ -2,12 +2,21 @@
 
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import { useDebounce } from 'use-debounce';
+
+interface Question {
+  id: string;
+  text: string;
+  content?:string;
+  tags: string[]
+}
 
 const AddNewQues = () => {
   const router = useRouter()
   const [question, setQuestion] = useState('');
+  const [ debouncedQuestion ] = useDebounce()
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [similarQuestions, setSimilarQuestions] = useState<string[]>([]);
+  const [similarQuestions, setSimilarQuestions] = useState<Question[]>([]);
   const [showSimilarQuestions, setShowSimilarQuestions] = useState(false);
 
   const checkSimilarQuestions = async (query: string) => {
@@ -19,6 +28,7 @@ const AddNewQues = () => {
       });
   
       const text = await response.text(); // First get as text
+      console.log(text, 'TEXTABC')
       try {
         return JSON.parse(text); // Then try to parse
       } catch (e) {
@@ -48,6 +58,7 @@ const AddNewQues = () => {
     }
   };
 
+  console.log(similarQuestions, 'simii  questtttt')
 
 
   const handleRedirect = () => {
@@ -68,7 +79,12 @@ const AddNewQues = () => {
         body: JSON.stringify({ question }),
       });
 
+      const data = await response.json();
+
+      console.log(data, 'daaaaas')
+
       if (!response.ok) throw new Error ('Failed to save')
+
 
       setQuestion('');
 
@@ -86,15 +102,15 @@ const AddNewQues = () => {
 
   console.log(similarQuestions, 'similar 123...')
 
-  const handleQuesRedirect = () => {
-    router.push('/singleQuestion')
+  const handleQuesRedirect = (id: string) => {
+    router.push(`/singleQuestion/${id}`);
   }
 
   return (
     <div className="max-w-2xl mx-auto p-4">
       <form onSubmit={handleSubmit} className="space-y-4">
         <label htmlFor="question" className="block text-lg font-medium text-gray-700">
-          lloerehej
+          search
         </label>
         <div className="flex gap-2">
           <input
@@ -102,7 +118,7 @@ const AddNewQues = () => {
             id="question"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="sdjksjdh fsdhfkjhsd..."
+            placeholder="search..."
             className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             disabled={isSubmitting}
             maxLength={250}
@@ -116,7 +132,7 @@ const AddNewQues = () => {
                 : 'bg-blue-600 hover:bg-blue-700'
             }`}
           >
-            {isSubmitting ? 'Posting...' : 'dhdkjsfjk'}
+            {isSubmitting ? 'Posting...' : 'go'}
           </button>
         </div>
       </form>
@@ -133,8 +149,8 @@ const AddNewQues = () => {
           <h3 className="font-medium text-gray-800">Similar questions found:</h3>
           <ul className="mt-2 space-y-2">
             {similarQuestions.map((q, i) => (
-              <li key={i} className="text-gray-600">• {q}
-            <button className='ml-4 bg-amber-100 rounded-sm px-2 py-1' onClick={handleQuesRedirect}>
+              <li key={i} className="text-gray-600">• {q.text}
+            <button className='ml-4 bg-amber-100 rounded-sm px-2 py-1' onClick={()=>handleQuesRedirect(q.id)} >
             Visit
             </button>
               </li>

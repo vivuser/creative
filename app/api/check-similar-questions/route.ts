@@ -16,33 +16,44 @@ const supabase = createClient(
 
 
   type MockQuestion = {
+    id: string,
     text: string;
+    content?: string;
     tags: string[];
   };
 
  // Mock database of questions with categories
-const MOCK_QUESTIONS_DB: MockQuestion[] = [
+ export const MOCK_QUESTIONS_DB: MockQuestion[] = [
+  { 
+    id: '1',
+    text: "How do I use React hooks?",
+    content: "Detailed explanation about React hooks...", 
+    tags: ["react", "hooks", "basics"] 
+  },
+  { 
+    id: '2',
+    text: "What's the difference between useEffect and useMemo?",
+    content: "Comparison between these two hooks...",
+    tags: ["react", "hooks", "comparison"] 
+  },
+  { 
+    id: '3',
+    text: "Best practices for React state management",
+    content: "Guide to managing state in React...",
+    tags: ["react", "state", "advanced"] 
+  },
     { 
-      text: "How do I use React hooks?", 
-      tags: ["react", "hooks", "basics"] 
-    },
-    { 
-      text: "What's the difference between useEffect and useMemo?", 
-      tags: ["react", "hooks", "comparison"] 
-    },
-    { 
-      text: "Best practices for React state management", 
-      tags: ["react", "state", "advanced"] 
-    },
-    { 
+    id: '4',
       text: "How to optimize React performance?", 
       tags: ["react", "performance"] 
     },
     { 
+    id: '5',
       text: "React vs Vue: which one to learn?", 
       tags: ["comparison", "frameworks"] 
     },
     {
+    id: '6',
       text: "How to fetch data in Next.js?",
       tags: ["nextjs", "data-fetching"]
     }
@@ -73,7 +84,6 @@ export async function POST(req: Request) {
         q.tags.some(tag => tag.includes(kw))
       )
     )
-    .map((q: MockQuestion) => q.text)
     .slice(0, 5); // Return max 5 matches
 
         console.log(question, req,'ggggg')

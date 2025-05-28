@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
 interface Question {
@@ -14,38 +14,48 @@ interface Question {
 const AddNewQues = () => {
   const router = useRouter()
   const [question, setQuestion] = useState('');
-  const [ debouncedQuestion ] = useDebounce()
+  const [ debouncedQuestion ] = useDebounce(question, 500);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [similarQuestions, setSimilarQuestions] = useState<Question[]>([]);
   const [showSimilarQuestions, setShowSimilarQuestions] = useState(false);
+  const [suggestions, setSuggestions] = useState<Question[]>([])
+  const [isLoading,setIsLoading] = useState(false);
 
-  const checkSimilarQuestions = async (query: string) => {
+
+  useEffect(() => {
+    if (debouncedQuestion.trim().length > 2) {
+      fetchSuggestions(debouncedQuestion);
+    } else{
+      setSuggestions([]);
+    }
+  }, [debouncedQuestion]);
+
+
+  const fetchSuggestions = async (query: string) => {
+    setIsLoading(true);
     try {
-      const response = await fetch('/api/check-similar-questions', {
+      const res = await fetch('/api/check-similar-questions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: query }),
       });
-  
-      const text = await response.text(); // First get as text
-      console.log(text, 'TEXTABC')
-      try {
-        return JSON.parse(text); // Then try to parse
-      } catch (e) {
-        console.error('Received non-JSON response:', text);
-        throw new Error(`API returned invalid JSON: ${text.slice(0, 100)}...`);
-      }
+      const { similarQuestions } = await res.json();
+      setSuggestions(similarQuestions || []);
     } catch (error) {
-      console.error('Full API error:', error);
-      throw error;
+      console.error("Fetch error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+    // Render suggestions below input
+    const showSuggestions = question.trim().length > 0 && suggestions.length > 0;
+
   
   // Usage in handleSubmit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { similarQuestions } = await checkSimilarQuestions(question);
+      // const { similarQuestions } = await checkSimilarQuestions(question);
 
       if (similarQuestions && similarQuestions.length > 0) {
         setSimilarQuestions(similarQuestions);
@@ -141,6 +151,19 @@ const AddNewQues = () => {
       <div className="text-sm text-gray-500 mt-1">
         {question.length}/250 characters
       </div>
+
+
+      {suggestions.map((q) => (
+          <div 
+            key={q.id}
+            className="p-3 hover:bg-gray-50 cursor-pointer flex justify-between"
+            onClick={() => router.push(`/questions/${q.id}`)}
+          >
+            <span>{q.text}</span>
+            <span className="text-xs text-gray-500">Jump →</span>
+          </div>
+        ))}
+
 
 
       {/* Similar questions modal */}

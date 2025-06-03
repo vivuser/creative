@@ -85,7 +85,7 @@ const OuterForm = () => {
       };
 
       return (
-        <div className="p-6 max-w-md bg-white rounded-xl shadow-md space-y-4">
+        <div className="p-6 m-6 max-w-md bg-white rounded-xl space-y-4 border border-blue-200">
           <h2 className="text-2xl font-bold text-gray-800">select</h2>
           
           <div className="space-y-3">

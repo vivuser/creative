@@ -1,6 +1,7 @@
-import { Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
+const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
     try {
@@ -15,13 +16,20 @@ export async function POST(request: Request) {
 
         const keywords = question.toLowerCase().split(/\s+/).filter(Boolean);
 
-        const relevantTags = await Prisma.topic.findMany({
+        const relevantTags = await prisma.topic.findMany({
             where: {
-                OR: keywords.map(keyword)
+                OR: keywords.map((keyword: string) => ({
+                    name: { contains: keyword }
+                }))
             }
-        })
+        });
 
+        return NextResponse.json(relevantTags);
 
+    } catch (error) {
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 }
+        );
     }
-
 }
